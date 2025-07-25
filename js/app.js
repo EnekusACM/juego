@@ -75,7 +75,6 @@ if (window.location.pathname.endsWith("narrativa.html")) {
 }
 
 function startGame() {
-  alert("Aquí comenzaría la misión real.");
 window.location.href = "juego.html";
 }
 
