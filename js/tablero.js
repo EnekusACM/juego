@@ -322,7 +322,7 @@ function mover(direction) {
           } else {
             heroe.vida -= 7;
           }
-          logCombate("¡Has caído en una trampa! Pierdes 7 puntos de vida.");
+          logCombate("¡Has caído en una trampa! Pierdes 7 puntos de vida, o 3 si eres Enano");
           actualizarStats();
           if (heroe.vida <= 0) {
             alert("Has muerto por una trampa... Game Over.");
