@@ -142,8 +142,12 @@ function accionMapa(accion) {
       logCombate("Ya tienes la vida al máximo.");
     }
   } else if (accion === "verInventario") {
-    // Ya no hace falta mostrarInventario, siempre está visible
-    logCombate("Inventario revisado.");
+    // Ordenar inventario alfabéticamente
+    if (heroe.objetos && heroe.objetos.length > 1) {
+      heroe.objetos.sort();
+      localStorage.setItem("estadoHeroe", JSON.stringify(heroe));
+    }
+    logCombate("Inventario revisado y ordenado alfabéticamente.");
   } else {
     logCombate("Acción de mapa no reconocida.");
   }
@@ -206,14 +210,30 @@ const enemigos = {
 };
 
 const boardData = [
-  ["S", "",  "",  "",  "E"],
-  ["#", "#", "",  "#", "#"],
-  ["",  "T",  "H", "G", "S"],
-  ["#", "",  "",  "",  "#"],
-  ["",  "#", "O", "#", ""]
+  ["I", "",  "",  "",  "G",  "",  "#", "",  "",  "E"],
+  ["#", "#", "#", "",  "#",  "",  "#", "",  "O", "#"],
+  ["",  "",  "",  "T", "",  "G", "",  "",  "",  ""],
+  ["",  "#", "#", "#", "",  "#", "#", "#", "#", ""],
+  ["",  "",  "",  "",  "",  "S", "",  "",  "T", ""],
+  ["#", "",  "#", "#", "#", "#", "",  "#", "#", ""],
+  ["",  "",  "",  "H", "",  "",  "",  "S", "",  ""],
+  ["#", "#", "O", "#", "",  "#", "",  "#", "",  "#"],
+  ["",  "",  "",  "",  "",  "",  "",  "T", "",  ""],
+  ["G", "#", "",  "#", "",  "O", "#", "",  "",  ""]
 ];
 
-let heroPos = { row: 2, col: 2 };
+// Buscar la posición de la casilla de inicio 'I' en el boardData
+let heroPos = (() => {
+  for (let row = 0; row < boardData.length; row++) {
+    for (let col = 0; col < boardData[row].length; col++) {
+      if (boardData[row][col] === "I") {
+        return { row, col };
+      }
+    }
+  }
+  // Si no se encuentra, usar posición por defecto
+  return { row: 0, col: 0 };
+})();
 let heroe = null;  // Estado del héroe cargado
 let enemigo = null; // Estado del enemigo actual
 let turno = null;   // "jugador" o "enemigo"
@@ -239,6 +259,24 @@ function init() {
   ocultarAcciones();
   mostrarAccionesMapa();
   mostrarInventario(); // Inventario siempre visible
+
+  // Mostrar narrativa inicial si existe para la casilla de inicio
+  const narrativaCasillas = {
+    "0,0": "Empiezas tu aventura en la entrada de la cripta. El aire es denso y huele a muerte.",
+    "1,4": "Tienes dudas de seguir avanzando, ves el suelo agrietado frente a ti.",
+
+    "0,4": "Encuentras los restos de un antiguo explorador. Un goblin acecha cerca...",
+    "2,3": "¡Has activado una trampa! Unas flechas silban en la oscuridad.",
+    "4,5": "Un esqueleto se alza entre los escombros. Esta parte parece más peligrosa...",
+    "6,3": "Tu determinación crece mientras cruzas la cámara central. El amuleto no debe caer en manos oscuras.",
+    "8,7": "Otra trampa, ¡pero algo te advierte a tiempo! Apenas la esquivas.",
+    "9,0": "Un goblin te embosca desde las sombras. ¿Qué protege esta criatura?",
+    "0,9": "¡Has llegado al final! El Amuleto de Fuego yace sobre un altar cubierto de runas."
+  };
+  const posClave = `${heroPos.row},${heroPos.col}`;
+  if (narrativaCasillas[posClave]) {
+    addLog(narrativaCasillas[posClave]);
+  }
 }
 
 function drawBoard() {
@@ -263,12 +301,16 @@ function drawBoard() {
         cell.textContent = "🧙";
       } else if (value === "#") {
         cell.classList.add("wall");
-      } else if (value === "S") {
+      } else if (value === "I") {
         cell.classList.add("start");
       } else if (value === "E") {
         cell.classList.add("end");
-      } else if (enemigos[value]) {
-        cell.textContent = "👹";
+      } else if (value === "S") {
+        cell.textContent = "💀"; // Esqueleto
+      } else if (value === "G") {
+        cell.textContent = "👺"; // Goblin (más parecido)
+      } else if (value === "O") {
+        cell.textContent = "👹"; // Orco
       }
       board.appendChild(cell);
     }
@@ -283,7 +325,6 @@ function actualizarStats() {
     Ataque máximo: ${heroe.ataqueMax || 4}<br>
     Defensa máxima: ${heroe.defensaMax || 2}<br>
     Habilidad especial: ${heroe.habilidad || "-"}<br>
-    Objetos: ${heroe.objetos.join(", ") || "Ninguno"}<br>
     Oro: ${heroe.oro || 0}
   `;
 }
@@ -311,7 +352,26 @@ function mover(direction) {
     ) {
       const anterior = { ...heroPos };
       heroPos = { row: newRow, col: newCol };
+      const posMsg = `Posición del jugador: (${heroPos.row},${heroPos.col})`;
+      console.log(posMsg);
+      logCombate(posMsg);
       drawBoard();
+      // Mostrar narrativa si existe para la nueva posición
+      const narrativaCasillas = {
+        "0,0": "Empiezas tu aventura en la entrada de la cripta. El aire es denso y huele a muerte.",
+        "1,3": "Tienes dudas de seguir avanzando, ves el suelo agrietado frente a ti.",
+        "0,4": "Encuentras los restos de un antiguo explorador. Un goblin acecha cerca...",
+        "2,3": "¡Has activado una trampa! Unas flechas silban en la oscuridad.",
+        "4,4": "Un esqueleto se alza entre los escombros. Esta parte parece más peligrosa...",
+        "6,3": "Tu determinación crece mientras cruzas la cámara central. El amuleto no debe caer en manos oscuras.",
+        "8,7": "Otra trampa, ¡pero algo te advierte a tiempo! Apenas la esquivas.",
+        "9,0": "Un goblin te embosca desde las sombras. ¿Qué protege esta criatura?",
+        "0,9": "¡Has llegado al final! El Amuleto de Fuego yace sobre un altar cubierto de runas."
+      };
+      const posClave = `${heroPos.row},${heroPos.col}`;
+      if (narrativaCasillas[posClave]) {
+        addLog(narrativaCasillas[posClave]);
+      }
       const casilla = boardData[newRow][newCol];
       if (casilla === "T") {
         const key = `${newRow},${newCol}`;
