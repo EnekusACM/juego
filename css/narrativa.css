@@ -1,0 +1,12 @@
+.scroll-box {
+  background-color: #fdf6e3;
+  color: #3b2f1b;
+  border: 2px solid #d2b48c;
+  padding: 1.5rem;
+  max-width: 600px;
+  margin: 2rem auto;
+  font-family: 'Georgia', serif;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  text-align: left;
+}

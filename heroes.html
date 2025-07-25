@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Selecciona tu Héroe</title>
+  <link rel="stylesheet" href="./css/heroes.css" />
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Elige tu Héroe</h1>
+    <form id="heroForm" onsubmit="return startMission()">
+      <div class="hero-list">
+        <div class="hero-card">
+          <label>
+            <input type="radio" name="hero" value="Bárbaro" onchange="selectHero(this)">
+            Bárbaro
+          </label>
+        </div>
+
+        <div class="hero-card">
+          <label>
+            <input type="radio" name="hero" value="Enano" onchange="selectHero(this)">
+            Enano
+          </label>
+        </div>
+
+        <div class="hero-card">
+          <label>
+            <input type="radio" name="hero" value="Elfo" onchange="selectHero(this)">
+            Elfo
+          </label>
+        </div>
+
+        <div class="hero-card">
+          <label>
+            <input type="radio" name="hero" value="Mago" onchange="selectHero(this)">
+            Mago
+          </label>
+        </div>
+      </div>
+
+      <input type="text" id="heroName" class="hero-name" placeholder="Nombre del héroe" disabled />
+
+      <button type="submit" id="startButton" disabled>Comenzar Misión</button>
+    </form>
+  </div>
+
+  <script src="./js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HeroQuest Narrativo</title>
+  <link rel="stylesheet" href="./css/index.css" />
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">HeroQuest Narrativo</h1>
+    
+    <div class="menu">
+      <button onclick="startNewAdventure()">Nueva Aventura</button>
+      <button onclick="continueGame()" disabled>Continuar</button>
+      <button onclick="showCredits()">Créditos</button>
+    </div>
+
+    <div id="credits" class="hidden">
+      <p>Proyecto de adaptación narrativa por [Tu Nombre].</p>
+      <button onclick="hideCredits()">Volver</button>
+    </div>
+  </div>
+
+  <script src="./js/app.js"></script>
+</body>
+</html>

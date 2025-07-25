@@ -1,0 +1,45 @@
+body {
+  margin: 0;
+  font-family: 'Georgia', serif;
+  background-color: #111;
+  color: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  text-align: center;
+}
+
+.title {
+  font-size: 3rem;
+  margin-bottom: 2rem;
+}
+
+.menu button {
+  display: block;
+  margin: 1rem auto;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  background-color: #333;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.menu button:hover:not(:disabled) {
+  background-color: #555;
+}
+
+.menu button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.hidden {
+  display: none;
+}
