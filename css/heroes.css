@@ -1,0 +1,89 @@
+body {
+  background: #181a1b;
+  color: #eee;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  background: #23272a;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px #0006;
+  padding: 32px 24px 24px 24px;
+}
+.title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 24px;
+  color: #ffd700;
+}
+.hero-list {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.hero-card {
+  background: #2c3136;
+  border-radius: 10px;
+  padding: 12px 10px 10px 10px;
+  box-shadow: 0 2px 8px #0003;
+  text-align: center;
+  width: 110px;
+  position: relative;
+  transition: box-shadow 0.2s;
+}
+.hero-card:hover {
+  box-shadow: 0 4px 16px #ffd70099;
+}
+.hero-card img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  background: #222;
+  border: 2px solid #444;
+}
+.hero-card input[type="radio"] {
+  margin-top: 8px;
+}
+.hero-card .caracteristicas {
+  font-size: 0.85em;
+  color: #b3b3b3;
+  margin-top: 6px;
+  background: #222;
+  border-radius: 6px;
+  padding: 4px 6px;
+  min-height: 38px;
+}
+.hero-name {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #222;
+  color: #ffd700;
+  font-size: 1em;
+}
+#startButton {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  background: #ffd700;
+  color: #23272a;
+  font-weight: bold;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#startButton:disabled {
+  background: #888;
+  color: #ccc;
+  cursor: not-allowed;
+}

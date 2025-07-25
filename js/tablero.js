@@ -40,7 +40,7 @@ function usarObjetoInventario(idx) {
   }
   const objeto = heroe.objetos[idx];
   if (objeto === "Poción de curación") {
-    heroe.vida = Math.min(10, heroe.vida + 5);
+    heroe.vida = Math.min(heroe.vidaMax || 10, heroe.vida + 5);
     heroe.objetos.splice(idx, 1);
     localStorage.setItem("estadoHeroe", JSON.stringify(heroe));
     actualizarStats();
@@ -172,7 +172,7 @@ function usarObjetoMapa() {
   }
   const objeto = heroe.objetos[opcion - 1];
   if (objeto === "Poción de curación") {
-    heroe.vida = Math.min(10, heroe.vida + 5);
+    heroe.vida = Math.min(heroe.vidaMax || 10, heroe.vida + 5);
     heroe.objetos.splice(opcion - 1, 1);
     localStorage.setItem("estadoHeroe", JSON.stringify(heroe));
     actualizarStats();
@@ -200,9 +200,9 @@ const recompensas = [
 ];
 
 const enemigos = {
-  "G": { nombre: "Goblin", vida: 6, ataque: 2 },
-  "S": { nombre: "Esqueleto", vida: 8, ataque: 3 },
-  "O": { nombre: "Orco", vida: 12, ataque: 4 }
+  "G": { nombre: "Goblin", vida: 6, ataque: 2, ataqueMax: 2, defensaMax: 1 },
+  "S": { nombre: "Esqueleto", vida: 8, ataque: 3, ataqueMax: 3, defensaMax: 3 },
+  "O": { nombre: "Orco", vida: 12, ataque: 4, ataqueMax: 4, defensaMax: 3 },
 };
 
 const boardData = [
@@ -279,7 +279,10 @@ function actualizarStats() {
   const heroStats = document.getElementById("heroStats");
   heroStats.innerHTML = `
     <strong>${heroe.nombre} el ${heroe.clase}</strong><br>
-    Vida: ${heroe.vida}<br>
+    Vida: ${heroe.vida} / ${heroe.vidaMax || 10}<br>
+    Ataque máximo: ${heroe.ataqueMax || 4}<br>
+    Defensa máxima: ${heroe.defensaMax || 2}<br>
+    Habilidad especial: ${heroe.habilidad || "-"}<br>
     Objetos: ${heroe.objetos.join(", ") || "Ninguno"}<br>
     Oro: ${heroe.oro || 0}
   `;
@@ -314,7 +317,11 @@ function mover(direction) {
         const key = `${newRow},${newCol}`;
         if (!trampasDescubiertas[key]) {
           // Trampa no descubierta
-          heroe.vida -= 7;
+          if (heroe.clase === "Enano") {
+            heroe.vida -= Math.ceil(7 / 2);
+          } else {
+            heroe.vida -= 7;
+          }
           logCombate("¡Has caído en una trampa! Pierdes 7 puntos de vida.");
           actualizarStats();
           if (heroe.vida <= 0) {
@@ -338,10 +345,13 @@ function mover(direction) {
 }
 
 function iniciarCombate(tipoEnemigo) {
+  const enemigoBase = enemigos[tipoEnemigo];
   enemigo = {
-    nombre: enemigos[tipoEnemigo].nombre,
-    vida: enemigos[tipoEnemigo].vida,
-    ataque: enemigos[tipoEnemigo].ataque
+    nombre: enemigoBase.nombre,
+    vida: enemigoBase.vida,
+    ataque: enemigoBase.ataque,
+    ataqueMax: enemigoBase.ataqueMax,
+    defensaMax: enemigoBase.defensaMax
   };
   turno = "jugador";
   logDiv.innerHTML = ""; // limpiar log
@@ -350,25 +360,69 @@ function iniciarCombate(tipoEnemigo) {
   mostrarAcciones();
   ocultarAccionesMapa();
   mostrarInventario(); // Actualiza inventario en combate
-}
 
-function mostrarAcciones() {
-  if (!accionesDiv) return;
-  accionesDiv.style.display = "block";
-}
-
-function ocultarAcciones() {
-  if (!accionesDiv) return;
-  accionesDiv.style.display = "none";
+  // Mostrar botón de habilidad especial si está disponible
+  const habilidadDiv = document.getElementById("habilidadEspecial");
+  if (habilidadDiv) habilidadDiv.remove();
+  const accionesDiv = document.getElementById("accionesCombate");
+  if (accionesDiv) {
+    const hero = heroe;
+    let btn = null;
+    if (hero.clase === "Guerrero" && hero.golpePoderosoDisponible) {
+      btn = document.createElement("button");
+      btn.id = "habilidadEspecial";
+      btn.textContent = "Golpe poderoso";
+      btn.onclick = function() {
+        enemigo.vida -= 5;
+        logCombate("¡Usas Golpe poderoso! Infliges 5 de daño garantizado.");
+        hero.golpePoderosoDisponible = false;
+        localStorage.setItem("estadoHeroe", JSON.stringify(hero));
+        if (enemigo.vida <= 0) {
+          logCombate(`¡Has derrotado al ${enemigo.nombre}!`);
+          eliminarMonstruo();
+          generarRecompensa(hero);
+          localStorage.setItem("estadoHeroe", JSON.stringify(hero));
+          ocultarAcciones();
+          turno = null;
+          actualizarStats();
+          mostrarAccionesMapa();
+          mostrarInventario();
+          return;
+        }
+        turno = "enemigo";
+        mostrarAcciones();
+        setTimeout(turnoEnemigo, 500);
+      };
+    } else if (hero.clase === "Elfo" && hero.renacerDisponible) {
+      // Elfo revive automáticamente, no botón
+    } else if (hero.clase === "Mago" && hero.escudoMagicoDisponible) {
+      btn = document.createElement("button");
+      btn.id = "habilidadEspecial";
+      btn.textContent = "Escudo mágico";
+      btn.onclick = function() {
+        hero.escudoMagicoActivo = true;
+        hero.escudoMagicoDisponible = false;
+        logCombate("¡Usas Escudo mágico! El siguiente ataque enemigo no te afectará y los enemigos tienen mitad de probabilidad de fallar el resto del combate.");
+        localStorage.setItem("estadoHeroe", JSON.stringify(hero));
+        turno = "enemigo";
+        mostrarAcciones();
+        setTimeout(turnoEnemigo, 500);
+      };
+    }
+    if (btn) accionesDiv.appendChild(btn);
+  }
 }
 
 function accionCombate(opcion) {
   if (turno !== "jugador") return;
 
   if (opcion === "atacar") {
-    const dano = Math.floor(Math.random() * 4) + 1;
+    const danoBase = Math.floor(Math.random() * (heroe.ataqueMax)) + 1;
+    const defensaEnemigo = Math.floor(Math.random() * (enemigo.defensaMax + 1));
+    const dano = Math.max(0, danoBase - defensaEnemigo);
     enemigo.vida -= dano;
-    logCombate(`🧙 Atacas al ${enemigo.nombre} e infliges ${dano} de daño.`);
+    logCombate(`🧙 Atacas al ${enemigo.nombre} (Ataque: ${danoBase}) | Defensa enemiga: ${defensaEnemigo} | Daño infligido: ${dano}`);
+    logCombate(`Vida restante del ${enemigo.nombre}: ${Math.max(0, enemigo.vida)}`);
     if (enemigo.vida <= 0) {
       logCombate(`¡Has derrotado al ${enemigo.nombre}!`);
       eliminarMonstruo();
@@ -404,6 +458,16 @@ function accionCombate(opcion) {
   } else {
     logCombate("Opción no válida.");
   }
+}
+
+function mostrarAcciones() {
+  if (!accionesDiv) return;
+  accionesDiv.style.display = "block";
+}
+
+function ocultarAcciones() {
+  if (!accionesDiv) return;
+  accionesDiv.style.display = "none";
 }
 
 function mostrarAccionesMapa() {
@@ -476,7 +540,7 @@ function usarObjetoCombate(idx) {
   }
   const objeto = heroe.objetos[idx];
   if (objeto === "Poción de curación") {
-    heroe.vida = Math.min(10, heroe.vida + 5);
+    heroe.vida = Math.min(heroe.vidaMax || 10, heroe.vida + 5);
     heroe.objetos.splice(idx, 1);
     localStorage.setItem("estadoHeroe", JSON.stringify(heroe));
     actualizarStats();
@@ -585,15 +649,37 @@ function addLog(text) {
 }
 
 function turnoEnemigo() {
-  let dano = Math.floor(Math.random() * enemigo.ataque) + 1;
-  if (heroe.bloqueoActivo) {
-    logCombate(`🛡️ Bloqueas el ataque del enemigo con tu escudo. No recibes daño.`);
+  let danoBase = Math.floor(Math.random() * enemigo.ataqueMax) + 1;
+  const defensaHeroe = Math.floor(Math.random() * (heroe.defensaMax + 1));
+  let dano = Math.max(0, danoBase - defensaHeroe);
+
+  // Mago: escudo mágico activo
+  if (heroe.clase === "Mago" && heroe.escudoMagicoActivo) {
+    logCombate("🛡️ El escudo mágico te protege. No recibes daño.");
     dano = 0;
-    heroe.bloqueoActivo = false;
+    heroe.escudoMagicoActivo = false;
+    localStorage.setItem("estadoHeroe", JSON.stringify(heroe));
+  } else if (heroe.clase === "Mago" && !heroe.escudoMagicoActivo && !heroe.escudoMagicoDisponible) {
+    // Enemigos tienen mitad de probabilidad de fallar
+    if (Math.random() < 0.5) {
+      logCombate("👹 El enemigo falla su ataque por el efecto del escudo mágico.");
+      dano = 0;
+    }
   }
+
   heroe.vida -= dano;
-  logCombate(`👹 ${enemigo.nombre} te ataca e inflige ${dano} de daño.`);
+  logCombate(`👹 ${enemigo.nombre} ataca (Ataque: ${danoBase}) | Defensa del héroe: ${defensaHeroe} | Daño recibido: ${dano}`);
+  logCombate(`Vida restante del héroe: ${Math.max(0, heroe.vida)}`);
   actualizarStats();
+
+  // Elfo: renacer si vida <= 0 y disponible
+  if (heroe.clase === "Elfo" && heroe.vida <= 0 && heroe.renacerDisponible) {
+    heroe.vida = heroe.vidaMax;
+    heroe.renacerDisponible = false;
+    logCombate("🌟 El Elfo renace y recupera toda su vida!");
+    actualizarStats();
+    localStorage.setItem("estadoHeroe", JSON.stringify(heroe));
+  }
 
   if (heroe.vida <= 0) {
     alert("Has caído en combate... Game Over.");

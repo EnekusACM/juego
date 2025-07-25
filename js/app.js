@@ -89,13 +89,58 @@ if (window.location.pathname.endsWith("juego.html")) {
   if (heroData && heroStats && gameText) {
     const { clase, nombre } = JSON.parse(heroData);
 
-    // Inicializar estadísticas simples
-    const hero = {
-      nombre,
-      clase,
-      vida: 10,
-      objetos: ["Poción de curación", "Antorcha"],
-    };
+    // Inicializar estadísticas según clase
+    let hero;
+    if (clase === "Guerrero") {
+      hero = {
+        nombre,
+        clase,
+        vida: 10,
+        vidaMax: 10,
+        ataqueMax: 5,
+        defensaMax: 2,
+        habilidad: "Golpe poderoso",
+        golpePoderosoDisponible: true,
+        habilidadUsada: false,
+        objetos: ["Poción de curación", "Antorcha"],
+      };
+    } else if (clase === "Enano") {
+      hero = {
+        nombre,
+        clase,
+        vida: 8,
+        vidaMax: 8,
+        ataqueMax: 4,
+        defensaMax: 3,
+        habilidad: "Resistencia a trampas",
+        objetos: ["Poción de curación", "Antorcha"],
+      };
+    } else if (clase === "Elfo") {
+      hero = {
+        nombre,
+        clase,
+        vida: 6,
+        vidaMax: 6,
+        ataqueMax: 5,
+        defensaMax: 3,
+        habilidad: "Renacer",
+        renacerDisponible: true,
+        objetos: ["Poción de curación", "Antorcha"],
+      };
+    } else if (clase === "Mago") {
+      hero = {
+        nombre,
+        clase,
+        vida: 4,
+        vidaMax: 4,
+        ataqueMax: 6,
+        defensaMax: 3,
+        habilidad: "Escudo mágico",
+        escudoMagicoDisponible: true,
+        escudoMagicoActivo: false,
+        objetos: ["Poción de curación", "Antorcha"],
+      };
+    }
 
     localStorage.setItem("estadoHeroe", JSON.stringify(hero));
 
@@ -106,12 +151,15 @@ if (window.location.pathname.endsWith("juego.html")) {
 
 function renderStats(hero) {
   const heroStats = document.getElementById("heroStats");
- heroStats.innerHTML = `
-  <strong>${hero.nombre} el ${hero.clase}</strong><br>
-  Vida: ${hero.vida}<br>
-  Objetos: ${hero.objetos.join(", ") || "Ninguno"}<br>
-  Oro: ${hero.oro || 0}
-`;
+  heroStats.innerHTML = `
+    <strong>${hero.nombre} el ${hero.clase}</strong><br>
+    Vida: ${hero.vida} / ${hero.vidaMax}<br>
+    Ataque máximo: ${hero.ataqueMax}<br>
+    Defensa máxima: ${hero.defensaMax}<br>
+    Habilidad especial: ${hero.habilidad}<br>
+    Objetos: ${hero.objetos.join(", ") || "Ninguno"}<br>
+    Oro: ${hero.oro || 0}
+  `;
 }
 
 function explore() {
