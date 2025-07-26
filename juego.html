@@ -2,27 +2,35 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>HeroQuest - Juego</title>
-  <link rel="stylesheet" href="./css/juego.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HeroQuest - Pueblo</title>
+  <link rel="stylesheet" href="./css/tablero.css" />
 </head>
 <body>
-  <div class="container">
-    <h1 class="title">Mazmorra en las Sombras</h1>
 
-    <div id="heroStats" class="scroll-box"></div>
+<h2>HeroQuest - Pueblo</h2>
 
-    <div id="gameText" class="scroll-box">
-      <p>Bienvenido, aventurero...</p>
-    </div>
+<div id="puebloEscenario">
+  <!-- Aquí puedes renderizar visualmente el pueblo si lo deseas -->
+</div>
 
-    <div class="menu">
-        <button onclick="exploreMap()">Explorar mazmorra</button> 
+<div id="heroStats"></div>
 
-      <button onclick="exitGame()">Salir</button>
-    </div>
+<div id="dialogoBox">
+  <div id="dialogoTexto">Bienvenido al pueblo. ¿Con quién quieres hablar?</div>
+  <div id="dialogoOpciones">
+    <!-- Opciones de diálogo se generan dinámicamente -->
   </div>
+</div>
 
-  <script src="./js/app.js"></script>
+<div id="accionesPueblo">
+  <button onclick="abrirInventario()">Ver inventario</button>
+  <button onclick="descansar()">Descansar en la posada</button>
+  <button onclick="salirMazmorra()">Salir del pueblo</button>
+</div>
+
+<div id="inventario" style="display:none;"></div>
+
+<script src="./js/pantallaJuego.js"></script>
 </body>
 </html>

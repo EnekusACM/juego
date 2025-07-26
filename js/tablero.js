@@ -409,7 +409,8 @@ function mover(direction) {
         localStorage.setItem("casillaAnterior", JSON.stringify(anterior));
         iniciarCombate(casilla);
       } else if (casilla === "E") {
-        alert("¡Has llegado al final de la mazmorra!");
+        alert("¡Has llegado al final de la mazmorra! Hora de volver a casa.");
+        window.location.href = "juego.html";
       }
     }
   } else {
