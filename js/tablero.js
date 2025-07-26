@@ -339,11 +339,24 @@ function mover(direction) {
   if (turno === null) { // Solo se puede mover si no está en combate activo
     const { row, col } = heroPos;
     let newRow = row, newCol = col;
+    // Permitir tanto nombres en español como en inglés
     switch (direction) {
-      case "up":    newRow--; break;
-      case "down":  newRow++; break;
-      case "left":  newCol--; break;
-      case "right": newCol++; break;
+      case "up":
+      case "arriba":
+        newRow--;
+        break;
+      case "down":
+      case "abajo":
+        newRow++;
+        break;
+      case "left":
+      case "izquierda":
+        newCol--;
+        break;
+      case "right":
+      case "derecha":
+        newCol++;
+        break;
     }
     if (
       newRow >= 0 && newRow < boardData.length &&
@@ -403,6 +416,25 @@ function mover(direction) {
     logCombate("No puedes moverte durante el combate.");
   }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  const arriba = document.getElementById('btnArriba');
+  const abajo = document.getElementById('btnAbajo');
+  const izq = document.getElementById('btnIzq');
+  const der = document.getElementById('btnDer');
+  if (arriba && abajo && izq && der) {
+    arriba.addEventListener('touchstart', function(e) { e.preventDefault(); mover('arriba'); });
+    abajo.addEventListener('touchstart', function(e) { e.preventDefault(); mover('abajo'); });
+    izq.addEventListener('touchstart', function(e) { e.preventDefault(); mover('izquierda'); });
+    der.addEventListener('touchstart', function(e) { e.preventDefault(); mover('derecha'); });
+
+    // También soporta click para escritorio
+    arriba.addEventListener('click', () => mover('arriba'));
+    abajo.addEventListener('click', () => mover('abajo'));
+    izq.addEventListener('click', () => mover('izquierda'));
+    der.addEventListener('click', () => mover('derecha'));
+  }
+});
 
 function iniciarCombate(tipoEnemigo) {
   const enemigoBase = enemigos[tipoEnemigo];
